@@ -1,0 +1,140 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="rc.css">
+</head>
+<body>
+<form action="/action_page.php">
+
+<style>
+h4 {
+  text-decoration: underline;
+}
+</style>
+
+Buy Price ==> <input type="number" id="BuyPrice" value="">
+Sell Price ==> <input type="number" id="SellPrice" value="">
+Quantity of share ==><input type="number" id="QuantityOfShare" value=""><br>
+
+<h4>Select Either IntraDay or Equity market</h4>
+<input type="radio" id="IntraDay" value="IntraDay"> IntraDay Market
+<input type="radio" id="Equity" value="Equity"> Equity Market <br>
+
+<h4>Select Either Brokerage is FlatPercentage or Flatprice</h4>
+<input type="radio" id="FlatPercentage" value="FlatPercentage"> Brokerage in Percentage
+<input type="radio" id="Flatprice" value="Flatprice"> Brokerage in price<br>
+<input type="number" id="BrokerageInfo" step="any"><br>
+
+<h4>Select Either BSE or NSE</h4>
+<input type="radio" id="BSE" value="BSE"> BSE
+<input type="radio" id="NSE" value="NSE"> NSE <br>
+
+<script type="text/javascript">
+
+function Tax()
+{
+	var Buy_Price = parseFloat(document.getElementById("BuyPrice").value, 10);
+	var Sell_Price = parseFloat(document.getElementById("SellPrice").value, 10);
+	var Quantity_of_Share = parseInt(document.getElementById("QuantityOfShare").value, 10);
+	var gstChargePercentage = 18;
+	var sebiChargePercentage = 15;
+	var stampDutyPercentage = 0.003;
+	var BrokerageVal = parseFloat(document.getElementById("BrokerageInfo").value, 10);
+	if (BSE.checked){
+		var stockExchangeChargePercentage = 0.003;
+	} else if (NSE.checked) {
+		var stockExchangeChargePercentage =  0.00325;
+	}
+
+	if (IntraDay.checked ){
+		var sttPercentage = 0.025;
+	} else if (Equity.checked) {
+		var sttPercentage = 0.1;
+	}
+
+	var buyTransaction = (Buy_Price * Quantity_of_Share);
+	var sellTransaction = (Sell_Price * Quantity_of_Share);
+	var totalTransaction = (buyTransaction + sellTransaction);
+	var stampDuty = ((totalTransaction * stampDutyPercentage) / 100);
+
+
+	if (BSE.checked){
+		var stockExchangeChargePercentage = 0.003;
+	} else if (NSE.checked) {
+		var stockExchangeChargePercentage =  0.00325;
+	}
+
+	if (IntraDay.checked ){
+		var sttPercentage = 0.025;
+		var sttCalParameter = sellTransaction;
+	} else if (Equity.checked) {
+		var sttPercentage = 0.1;
+		var sttCalParameter = totalTransaction;
+	}
+
+	if (Flatprice.checked){
+		var totalBrokerageToBePaid = BrokerageVal;
+	} else if (FlatPercentage.checked) {
+		var totalBrokerageToBePaid = ((totalTransaction / 100) * BrokerageVal);
+	}
+
+	var sttCharges = ((sttCalParameter / 100) * sttPercentage);
+	var exchangeTaxes = ((totalTransaction / 100) * stockExchangeChargePercentage);
+	var gstCharges1 = (totalBrokerageToBePaid + exchangeTaxes);
+	var gstCharges2 = (gstCharges1 / 100);
+	var gstCharges = (gstCharges2 * gstChargePercentage);
+	var sebiCharges = ((totalTransaction * sebiChargePercentage) / 10000000);
+	var totalTaxToPaid = (gstCharges + exchangeTaxes + sttCharges + totalBrokerageToBePaid + sebiCharges + stampDuty);
+
+	var NetAmountReceived = (sellTransaction - totalTaxToPaid);
+	if (NetAmountReceived > buyTransaction) {
+		var NetFinalProfit = (NetAmountReceived - buyTransaction);
+		var GainPercentage = (NetFinalProfit / buyTransaction) * 100;
+	} else if (NetAmountReceived < buyTransaction) {
+		var NetFinalProfit = (buyTransaction - NetAmountReceived);
+		var GainPercentage = (NetFinalProfit / buyTransaction) * 100;
+	}
+
+	document.getElementById("buyTransaction").value = buyTransaction;
+	document.getElementById("totalBrokerageToBePaid").value = totalBrokerageToBePaid;
+	document.getElementById("sttCharges").value = sttCharges;
+	document.getElementById("exchangeTaxes").value = exchangeTaxes;
+	document.getElementById("gstCharges").value = gstCharges;
+	document.getElementById("sebiCharges").value = sebiCharges;
+	document.getElementById("stampDuty").value = stampDuty;
+	document.getElementById("totalTaxToPaid").value = totalTaxToPaid;
+	document.getElementById("NetAmountReceived").value = NetAmountReceived;
+	document.getElementById("FinalProfit").value = NetFinalProfit;
+	document.getElementById("GainPercentage").value = GainPercentage;
+
+	if (NetAmountReceived > buyTransaction) {
+		document.getElementById("TransactionState").value = "Transaction is Profit";
+	} else if (buyTransaction > NetAmountReceived) {
+		document.getElementById("TransactionState").value = "Transaction is Loss";
+	}
+}
+</script>
+<br>
+
+<h4>Tax Information</h4>
+
+<label for="totalBrokerageToBePaid"><span>Total Brokerage Paid</span> </label> <input type="textbox" name="totalBrokerageToBePaid" class="j1"id="totalBrokerageToBePaid" ></input><br>
+<label for="sttCharges">Total STT Paid </label> <input type="textbox" name="sttCharges" id="sttCharges" ></input><br>
+<label for="exchangeTaxes">Total Exchange Charges Paid </label> <input type="textbox" name="exchangeTaxes" id="exchangeTaxes" ></input><br>
+<label for="gstCharges">Total GST Charges Paid </label> <input type="textbox" name="gstCharges" id="gstCharges" ></input><br>
+<label for="sebiCharges">Total SEBI Paid </label> <input type="textbox" name="sebiCharges" id="sebiCharges" ></input><br>
+<label for="stampDuty">Total Stampy Duty </label> <input type="textbox" name="stampDuty" id="stampDuty" ></input><br>
+<label for="totalTaxToPaid">Total Tax paid </label> <input type="textbox" name="totalTaxToPaid" id="totalTaxToPaid" ></input><br>
+
+<h4>Final Profit or Loss</h4>
+<label for="buyTransaction">Total Invested Amount </label> <input type="textbox" name="buyTransaction" id="buyTransaction" ></input><br>
+<label for="NetAmountReceived">Amount Received after Deducting Taxes </label> <input type="textbox" name="NetAmountReceived" id="NetAmountReceived" ></input><br>
+<label for="FinalProfit">Net Difference </label> <input type="textbox" name="FinalProfit" id="FinalProfit" ></input><br>
+<label for="TransactionState">Profit or Loss Information </label> <input type="textbox" name="TransactionState" id="TransactionState" ></input><br>
+<label for="GainPercentage">Profit or Loss Percentage on Invested Amount </label> <input type="textbox" name="GainPercentage" id="GainPercentage" ></input><br>
+<label>Please click Submit Button </label>
+
+
+<input type="button" value="Submit" onClick="Tax()">
+<br>
+<br>
+</form>
